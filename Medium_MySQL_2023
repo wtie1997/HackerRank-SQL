@@ -131,7 +131,45 @@ ORDER BY GRADE DESC, NAME
 
 /*
 Top Competitors
+Julia just finished conducting a coding contest, and she needs your help assembling the leaderboard! Write a query to print the respective hacker_id and name of hackers who achieved full scores for more than one challenge. Order your output in descending order by the total number of challenges in which the hacker earned a full score. If more than one hacker received full scores in same number of challenges, then sort them by ascending hacker_id.
+*/
 
+
+/*
+Ollivander's Inventory
+Harry Potter and his friends are at Ollivander's with Ron, finally replacing Charlie's old broken wand.
+Hermione decides the best way to choose is by determining the minimum number of gold galleons needed to buy each non-evil wand of high power and age. Write a query to print the id, age, coins_needed, and power of the wands that Ron's interested in, sorted in order of descending power. If more than one wand has same power, sort the result in order of descending age.
+*/
+SELECT id, age, coins_needed, power FROM wands w
+    JOIN wands_property wp ON w.code = wp.code
+WHERE is_evil = 0 AND coins_needed = 
+    (SELECT MIN(coins_needed) FROM wands w1
+        JOIN wands_property AS wp1 ON w1.code = wp1.code
+     WHERE w1.power = w.power AND wp1.age = wp.age)
+ORDER BY power DESC, age DESC;
+
+
+/*
+Challenges
+Julia asked her students to create some coding challenges. Write a query to print the hacker_id, name, and the total number of challenges created by each student. Sort your results by the total number of challenges in descending order. If more than one student created the same number of challenges, then sort the result by hacker_id. If more than one student created the same number of challenges and the count is less than the maximum number of challenges created, then exclude those students from the result.
+*/
+WITH data
+AS
+(
+SELECT c.hacker_id as id, h.name as name, count(c.hacker_id) as counter
+FROM Hackers h
+JOIN Challenges c on c.hacker_id = h.hacker_id
+GROUP BY c.hacker_id, h.name
+)
+SELECT id,name,counter
+FROM data
+WHERE
+counter=(SELECT max(counter) FROM data) /*select user that has max count submission*/
+OR
+counter in (SELECT counter FROM data
+GROUP BY counter
+HAVING count(counter)=1 ) /*filter out the submission count which is unique*/
+ORDER BY counter desc, id
 
 
 
